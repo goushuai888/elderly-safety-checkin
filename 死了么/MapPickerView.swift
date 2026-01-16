@@ -36,10 +36,10 @@ struct MapPickerView: View {
             VStack {
                 Spacer()
                 Image(systemName: "mappin")
-                    .font(.system(size: 40, weight: .semibold))
+                    .font(AppTheme.Typography.statNumber)
                     .foregroundColor(AppTheme.Colors.danger)
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                    .offset(y: -20) // 向上偏移，使针尖指向中心
+                    .offset(y: -AppTheme.Spacing.lg)
                 Spacer()
             }
 
@@ -48,12 +48,12 @@ struct MapPickerView: View {
                 HStack {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 32))
+                            .font(AppTheme.Typography.largeTitle)
                             .foregroundColor(AppTheme.Colors.text)
                             .background(
                                 Circle()
                                     .fill(.white)
-                                    .frame(width: 30, height: 30)
+                                    .frame(width: AppTheme.Size.iconXXLarge, height: AppTheme.Size.iconXXLarge)
                             )
                             .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                     }
@@ -66,7 +66,7 @@ struct MapPickerView: View {
                         ZStack {
                             Circle()
                                 .fill(.white)
-                                .frame(width: 48, height: 48)
+                                .frame(width: AppTheme.Size.touchTarget, height: AppTheme.Size.touchTarget)
                                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
 
                             if isLoadingLocation {
@@ -74,7 +74,7 @@ struct MapPickerView: View {
                                     .scaleEffect(0.8)
                             } else {
                                 Image(systemName: "location.fill")
-                                    .font(.system(size: 22))
+                                    .font(AppTheme.Typography.title2)
                                     .foregroundColor(AppTheme.Colors.primary)
                             }
                         }
@@ -83,7 +83,7 @@ struct MapPickerView: View {
                     .seniorFriendlyTouchTarget()
                     .disabled(isLoadingLocation)
                 }
-                .padding(.top, 50) // 给状态栏留空间
+                .padding(.top, AppTheme.Spacing.xxxl + AppTheme.Spacing.md)
 
                 Spacer()
             }
@@ -185,7 +185,7 @@ struct MapControlPanel: View {
                         .scaleEffect(0.9)
                 } else {
                     Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 22))
+                        .font(AppTheme.Typography.title2)
                         .foregroundColor(AppTheme.Colors.primary)
                 }
 
@@ -200,9 +200,9 @@ struct MapControlPanel: View {
                 // 刷新按钮
                 Button(action: onRefresh) {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 18))
+                        .font(AppTheme.Typography.bodyLarge)
                         .foregroundColor(AppTheme.Colors.primary)
-                        .frame(width: 36, height: 36)
+                        .frame(width: AppTheme.Size.iconXXLarge + 4, height: AppTheme.Size.iconXXLarge + 4)
                         .background(
                             Circle()
                                 .fill(AppTheme.Colors.backgroundSecondary)
@@ -223,7 +223,7 @@ struct MapControlPanel: View {
                         .font(AppTheme.Typography.bodyBold)
                         .foregroundColor(AppTheme.Colors.text)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 48)
+                        .frame(height: AppTheme.Size.touchTarget)
                         .background(
                             RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                                 .fill(AppTheme.Colors.backgroundSecondary)
@@ -236,7 +236,7 @@ struct MapControlPanel: View {
                         .font(AppTheme.Typography.bodyBold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 48)
+                        .frame(height: AppTheme.Size.touchTarget)
                         .background(
                             RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                                 .fill(

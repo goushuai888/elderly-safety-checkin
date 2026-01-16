@@ -102,7 +102,7 @@ struct AddElderlyView: View {
                         .datePickerStyle(.compact)
                         .labelsHidden()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .frame(height: 44)
+                        .frame(height: AppTheme.Size.touchTarget)
                         .padding(AppTheme.Spacing.sm)
                         .background(
                             RoundedRectangle(cornerRadius: AppTheme.Radius.md)
@@ -119,13 +119,13 @@ struct AddElderlyView: View {
                 Button(action: saveElderly) {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 18))
+                            .font(AppTheme.Typography.bodyLarge)
                         Text("保存信息")
                     }
                     .font(AppTheme.Typography.button)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 52)
+                    .frame(height: AppTheme.Size.touchTargetLarge)
                     .background(
                         ZStack {
                             LinearGradient.primary

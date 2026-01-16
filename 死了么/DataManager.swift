@@ -17,6 +17,7 @@ class DataManager: ObservableObject {
     @Published var contacts: [EmergencyContact] = []
     @Published var checkIns: [CheckInRecord] = []
     @Published var notifications: [NotificationRecord] = []
+    @Published var locationShares: [LocationShareRecord] = []
 
     private init() {
         loadData()
@@ -45,6 +46,11 @@ class DataManager: ObservableObject {
            let decoded = try? JSONDecoder().decode([NotificationRecord].self, from: notificationsData) {
             notifications = decoded
         }
+
+        if let locationSharesData = UserDefaults.standard.data(forKey: "locationShares"),
+           let decoded = try? JSONDecoder().decode([LocationShareRecord].self, from: locationSharesData) {
+            locationShares = decoded
+        }
     }
 
     private func saveData() {
@@ -62,6 +68,10 @@ class DataManager: ObservableObject {
 
         if let encoded = try? JSONEncoder().encode(notifications) {
             UserDefaults.standard.set(encoded, forKey: "notifications")
+        }
+
+        if let encoded = try? JSONEncoder().encode(locationShares) {
+            UserDefaults.standard.set(encoded, forKey: "locationShares")
         }
     }
 
@@ -85,6 +95,7 @@ class DataManager: ObservableObject {
         elderly.removeAll { $0.id == person.id }
         contacts.removeAll { $0.elderlyId == person.id }
         checkIns.removeAll { $0.elderlyId == person.id }
+        locationShares.removeAll { $0.elderlyId == person.id }
         saveData()
         cancelNotifications(for: person.id)
     }

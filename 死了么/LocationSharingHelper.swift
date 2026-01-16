@@ -46,12 +46,16 @@ class LocationSharingHelper {
         // 添加地图链接（支持多个地图应用）
         content += "查看位置：\n"
 
+        // URL 编码姓名和标签
+        let encodedName = elderly.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? elderly.name
+        let encodedLabel = "的位置".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "的位置"
+
         // 高德地图
-        let amapURL = "https://uri.amap.com/marker?position=\(longitude),\(latitude)&name=\(elderly.name)的位置"
+        let amapURL = "https://uri.amap.com/marker?position=\(longitude),\(latitude)&name=\(encodedName)\(encodedLabel)"
         content += "• 高德地图：\(amapURL)\n"
 
         // 百度地图
-        let baiduURL = "http://api.map.baidu.com/marker?location=\(latitude),\(longitude)&title=\(elderly.name)的位置&output=html"
+        let baiduURL = "http://api.map.baidu.com/marker?location=\(latitude),\(longitude)&title=\(encodedName)\(encodedLabel)&output=html"
         content += "• 百度地图：\(baiduURL)\n"
 
         // Apple 地图
@@ -90,7 +94,9 @@ class LocationSharingHelper {
         content += "坐标：\(String(format: "%.6f", latitude)), \(String(format: "%.6f", longitude))\n\n"
 
         content += "查看位置：\n"
-        let amapURL = "https://uri.amap.com/marker?position=\(longitude),\(latitude)&name=紧急位置"
+        // URL 编码中文标签
+        let encodedEmergencyLabel = "紧急位置".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "紧急位置"
+        let amapURL = "https://uri.amap.com/marker?position=\(longitude),\(latitude)&name=\(encodedEmergencyLabel)"
         content += "• 高德地图：\(amapURL)\n"
 
         let appleURL = "http://maps.apple.com/?q=\(latitude),\(longitude)"
