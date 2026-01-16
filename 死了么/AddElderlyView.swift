@@ -167,6 +167,6 @@ struct AddElderlyView: View {
 }
 
 #Preview {
-    AddElderlyView(isPresented: .constant(true), elderly: nil)
+    AddElderlyView(isPresented: .constant(true), elderly: Optional<Elderly>.none)
         .environmentObject(DataManager.shared)
 }
