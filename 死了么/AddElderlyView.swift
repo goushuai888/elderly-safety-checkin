@@ -141,8 +141,6 @@ struct AddElderlyView: View {
     }
 
     private func saveElderly() {
-        HapticFeedback.success()
-
         // 将 Date 转换为 "HH:mm" 格式
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "HH:mm"
