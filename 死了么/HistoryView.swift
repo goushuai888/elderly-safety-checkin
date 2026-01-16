@@ -65,6 +65,11 @@ struct HistoryView: View {
                        let record = getRecord(for: selected) {
                         CheckInDetailCard(record: record)
                             .padding(.horizontal)
+
+                        // 地图显示
+                        CheckInMapView(elderly: elderly, record: record)
+                            .padding(.horizontal)
+                            .padding(.bottom, AppTheme.Spacing.md)
                     }
                 }
                 .padding(.vertical)
