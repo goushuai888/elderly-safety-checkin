@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct CheckInView: View {
     // MARK: - Constants
@@ -25,6 +26,9 @@ struct CheckInView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isPressed = false
+    @State private var showingShareSheet = false
+    @State private var shareContent: String = ""
+    @State private var isLoadingLocation = false
     @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     private var hasCheckedIn: Bool {
@@ -47,6 +51,10 @@ struct CheckInView: View {
             StatsSection(elderly: elderly)
                 .padding(.horizontal, AppTheme.Spacing.pagePadding)
 
+            // 分享位置按钮
+            ShareLocationButton(isLoading: isLoadingLocation, action: shareLocation)
+                .padding(.horizontal, AppTheme.Spacing.pagePadding)
+
             Spacer()
         }
         .background(AppTheme.Colors.background)
@@ -62,6 +70,9 @@ struct CheckInView: View {
         }
         .sheet(isPresented: $showingHistory) {
             HistoryView(elderly: elderly)
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(items: [shareContent])
         }
         .alert("提示", isPresented: $showAlert) {
             Button("确定", role: .cancel) {}
@@ -109,14 +120,76 @@ struct CheckInView: View {
             isPressed = true
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + Layout.checkInDelay) {
-            dataManager.checkIn(for: elderly.id)
-            HapticFeedback.success()
-            alertMessage = "签到成功！"
-            showAlert = true
+        // 请求位置（不阻塞签到流程）
+        LocationManager.shared.requestCurrentLocation { result in
+            var latitude: Double? = nil
+            var longitude: Double? = nil
 
-            withAnimation(AppTheme.Animation.bouncy) {
-                isPressed = false
+            if case .success(let location) = result {
+                latitude = location.coordinate.latitude
+                longitude = location.coordinate.longitude
+            }
+
+            // 无论定位成功与否，都执行签到
+            DispatchQueue.main.asyncAfter(deadline: .now() + Layout.checkInDelay) {
+                dataManager.checkIn(
+                    for: elderly.id,
+                    latitude: latitude,
+                    longitude: longitude
+                )
+                HapticFeedback.success()
+                alertMessage = "签到成功！"
+                showAlert = true
+
+                withAnimation(AppTheme.Animation.bouncy) {
+                    isPressed = false
+                }
+            }
+        }
+    }
+
+    private func shareLocation() {
+        HapticFeedback.light()
+        isLoadingLocation = true
+
+        // 获取当前位置
+        LocationManager.shared.requestCurrentLocation { result in
+            DispatchQueue.main.async {
+                isLoadingLocation = false
+
+                switch result {
+                case .success(let location):
+                    let coordinate = location.coordinate
+
+                    // 反地理编码获取地址
+                    LocationManager.shared.reverseGeocode(
+                        latitude: coordinate.latitude,
+                        longitude: coordinate.longitude
+                    ) { addressResult in
+                        DispatchQueue.main.async {
+                            var address: String? = nil
+                            if case .success(let addr) = addressResult {
+                                address = addr
+                            }
+
+                            // 生成分享内容
+                            shareContent = LocationSharingHelper.generateShareContent(
+                                elderly: elderly,
+                                latitude: coordinate.latitude,
+                                longitude: coordinate.longitude,
+                                address: address
+                            )
+
+                            // 显示分享表单
+                            HapticFeedback.success()
+                            showingShareSheet = true
+                        }
+                    }
+
+                case .failure(let error):
+                    alertMessage = error.localizedDescription
+                    showAlert = true
+                }
             }
         }
     }
@@ -350,6 +423,50 @@ private extension View {
                     y: 2
                 )
         )
+    }
+}
+
+// MARK: - Share Location Button
+/// 分享位置按钮
+struct ShareLocationButton: View {
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: AppTheme.Colors.primary))
+                        .scaleEffect(0.9)
+                } else {
+                    Image(systemName: "location.fill.viewfinder")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(AppTheme.Colors.primary)
+                }
+
+                Text(isLoading ? "获取位置中..." : "分享我的位置")
+                    .font(AppTheme.Typography.bodyBold)
+                    .foregroundColor(AppTheme.Colors.primary)
+
+                Spacer()
+
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 16))
+                    .foregroundColor(AppTheme.Colors.primary)
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .fill(AppTheme.Colors.primary.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                            .stroke(AppTheme.Colors.primary.opacity(0.3), lineWidth: 1.5)
+                    )
+            )
+        }
+        .disabled(isLoading)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

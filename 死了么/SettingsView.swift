@@ -83,11 +83,11 @@ struct SettingsView: View {
         .navigationTitle("设置")
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingAddElderly) {
-            AddElderlyView(isPresented: $showingAddElderly)
+            AddElderlyView(isPresented: $showingAddElderly, elderly: nil)
         }
         .sheet(isPresented: $showingEditElderly) {
             if let elderly = elderlyToEdit {
-                EditElderlyView(elderly: elderly, isPresented: $showingEditElderly)
+                AddElderlyView(isPresented: $showingEditElderly, elderly: elderly)
             }
         }
         .alert("确认删除", isPresented: $showDeleteConfirmation) {

@@ -49,7 +49,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $showingAddElderly) {
-            AddElderlyView(isPresented: $showingAddElderly)
+            AddElderlyView(isPresented: $showingAddElderly, elderly: nil)
         }
     }
 }

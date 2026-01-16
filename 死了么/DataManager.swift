@@ -114,7 +114,7 @@ class DataManager: ObservableObject {
 
     // MARK: - 签到管理
 
-    func checkIn(for elderlyId: UUID, note: String = "") {
+    func checkIn(for elderlyId: UUID, note: String = "", latitude: Double? = nil, longitude: Double? = nil) {
         let today = todayDateString()
 
         // 检查今天是否已经签到
@@ -122,7 +122,12 @@ class DataManager: ObservableObject {
             return
         }
 
-        let record = CheckInRecord(elderlyId: elderlyId, note: note)
+        let record = CheckInRecord(
+            elderlyId: elderlyId,
+            note: note,
+            latitude: latitude,
+            longitude: longitude
+        )
         checkIns.append(record)
         saveData()
 
