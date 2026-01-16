@@ -71,123 +71,62 @@ struct AddElderlyView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // 表单区域
-                VStack(spacing: AppTheme.Spacing.sm) {
-                    FormField(
-                        icon: "person.fill",
-                        label: "姓名",
-                        placeholder: "请输入老人姓名",
-                        text: $name,
-                        color: AppTheme.Colors.primary
-                    )
+        let _ = print("AddElderlyView body - 姓名: \(name), 电话: \(phone), 编辑模式: \(isEditMode)")
+        return NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    Text("编辑老人信息")
+                        .font(.title)
+                        .padding()
 
-                    FormField(
-                        icon: "phone.fill",
-                        label: "电话",
-                        placeholder: "请输入联系电话",
-                        text: $phone,
-                        keyboardType: .phonePad,
-                        color: AppTheme.Colors.success
-                    )
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("姓名")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        TextField("请输入姓名", text: $name)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                    // 地址选择（点击打开地图）
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "house.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(AppTheme.Colors.warning)
-                            Text("住址")
-                                .font(AppTheme.Typography.caption)
-                                .foregroundColor(AppTheme.Colors.textMuted)
-                        }
+                        Text("电话")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        TextField("请输入电话", text: $phone)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.phonePad)
 
-                        Button(action: { showingMapPicker = true }) {
-                            HStack {
-                                Image(systemName: "map.fill")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(AppTheme.Colors.warning)
-                                Text(address.isEmpty ? "在地图上选择位置" : address)
-                                    .font(.system(size: 15))
-                                    .foregroundColor(address.isEmpty ? AppTheme.Colors.textMuted : AppTheme.Colors.text)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(AppTheme.Colors.textMuted)
-                            }
-                            .padding(AppTheme.Spacing.sm)
-                            .background(
-                                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                                    .fill(AppTheme.Colors.backgroundSecondary)
-                            )
-                        }
-                    }
+                        Text("住址")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        TextField("请输入住址", text: $address)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                    // 时间选择器（紧凑样式）
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(AppTheme.Colors.purple)
-                            Text("每日提醒时间")
-                                .font(AppTheme.Typography.caption)
-                                .foregroundColor(AppTheme.Colors.textMuted)
-                        }
-
+                        Text("提醒时间")
+                            .font(.caption)
+                            .foregroundColor(.gray)
                         DatePicker(
                             "",
                             selection: $checkTime,
                             displayedComponents: .hourAndMinute
                         )
                         .datePickerStyle(.compact)
-                        .labelsHidden()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .frame(height: AppTheme.Size.touchTarget)
-                        .padding(AppTheme.Spacing.sm)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                                .fill(AppTheme.Colors.backgroundSecondary)
-                        )
                     }
-                }
-                .padding(.horizontal, AppTheme.Spacing.pagePadding)
-                .padding(.top, AppTheme.Spacing.md)
+                    .padding(.horizontal)
 
-                Spacer()
-
-                // 保存按钮（固定在底部）
-                Button(action: saveElderly) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(AppTheme.Typography.bodyLarge)
+                    Button(action: saveElderly) {
                         Text("保存信息")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.blue)
+                            .cornerRadius(12)
                     }
-                    .font(AppTheme.Typography.button)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: AppTheme.Size.touchTargetLarge)
-                    .background(
-                        ZStack {
-                            LinearGradient.primary
-                            LinearGradient.softOverlay
-                        }
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.md))
-                    .shadow(
-                        color: AppTheme.Colors.primary.opacity(0.35),
-                        radius: 12,
-                        x: 0,
-                        y: 6
-                    )
+                    .padding(.horizontal)
+                    .disabled(!isFormValid)
+                    .opacity(isFormValid ? 1.0 : 0.5)
                 }
-                .disabled(!isFormValid)
-                .opacity(isFormValid ? 1.0 : 0.5)
-                .buttonStyle(ScaleButtonStyle())
-                .padding(.horizontal, AppTheme.Spacing.pagePadding)
-                .padding(.bottom, AppTheme.Spacing.md)
+                .padding(.vertical)
             }
-            .background(AppTheme.Colors.background)
+            .background(Color(UIColor.systemBackground))
             .navigationTitle(isEditMode ? "编辑老人信息" : "添加老人信息")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -195,14 +134,8 @@ struct AddElderlyView: View {
                     Button("取消") {
                         isPresented = false
                     }
-                    .foregroundColor(AppTheme.Colors.textSecondary)
+                    .foregroundColor(.gray)
                 }
-            }
-            .sheet(isPresented: $showingMapPicker) {
-                MapPickerView(
-                    selectedCoordinate: $homeCoordinate,
-                    selectedAddress: $address
-                )
             }
         }
     }
