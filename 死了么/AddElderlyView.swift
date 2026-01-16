@@ -13,12 +13,53 @@ struct AddElderlyView: View {
     @Binding var isPresented: Bool
     let elderly: Elderly? // 编辑模式时传入，添加模式为 nil
 
-    @State private var name = ""
-    @State private var phone = ""
-    @State private var address = ""
-    @State private var checkTime = Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date()
+    @State private var name: String
+    @State private var phone: String
+    @State private var address: String
+    @State private var checkTime: Date
     @State private var homeCoordinate: CLLocationCoordinate2D? = nil
     @State private var showingMapPicker = false
+
+    // 初始化方法，根据是否为编辑模式设置初始值
+    init(isPresented: Binding<Bool>, elderly: Elderly?) {
+        self._isPresented = isPresented
+        self.elderly = elderly
+
+        // 根据是否有 elderly 数据来初始化状态
+        if let elderly = elderly {
+            // 编辑模式：使用现有数据
+            self._name = State(initialValue: elderly.name)
+            self._phone = State(initialValue: elderly.phone)
+            self._address = State(initialValue: elderly.address)
+
+            // 解析时间字符串
+            let timeComponents = elderly.checkTime.split(separator: ":").compactMap { Int($0) }
+            if timeComponents.count == 2 {
+                let calendar = Calendar.current
+                var components = calendar.dateComponents([.year, .month, .day], from: Date())
+                components.hour = timeComponents[0]
+                components.minute = timeComponents[1]
+                if let time = calendar.date(from: components) {
+                    self._checkTime = State(initialValue: time)
+                } else {
+                    self._checkTime = State(initialValue: Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date())
+                }
+            } else {
+                self._checkTime = State(initialValue: Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date())
+            }
+
+            // 加载坐标
+            if let lat = elderly.homeLatitude, let lon = elderly.homeLongitude {
+                self._homeCoordinate = State(initialValue: CLLocationCoordinate2D(latitude: lat, longitude: lon))
+            }
+        } else {
+            // 添加模式：使用默认值
+            self._name = State(initialValue: "")
+            self._phone = State(initialValue: "")
+            self._address = State(initialValue: "")
+            self._checkTime = State(initialValue: Calendar.current.date(from: DateComponents(hour: 20, minute: 0)) ?? Date())
+        }
+    }
 
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -162,39 +203,6 @@ struct AddElderlyView: View {
                     selectedCoordinate: $homeCoordinate,
                     selectedAddress: $address
                 )
-            }
-            .onAppear {
-                loadElderlyData()
-            }
-        }
-    }
-
-    private func loadElderlyData() {
-        guard let elderly = elderly else { return }
-
-        // 加载现有数据
-        name = elderly.name
-        phone = elderly.phone
-        address = elderly.address
-
-        // 加载坐标
-        if let lat = elderly.homeLatitude, let lon = elderly.homeLongitude {
-            homeCoordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-        }
-
-        // 解析时间字符串 "HH:mm" -> Date
-        let timeComponents = elderly.checkTime.split(separator: ":").compactMap { Int($0) }
-        if timeComponents.count == 2 {
-            let hour = timeComponents[0]
-            let minute = timeComponents[1]
-
-            let calendar = Calendar.current
-            var components = calendar.dateComponents([.year, .month, .day], from: Date())
-            components.hour = hour
-            components.minute = minute
-
-            if let todayTime = calendar.date(from: components) {
-                checkTime = todayTime
             }
         }
     }
